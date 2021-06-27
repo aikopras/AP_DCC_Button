@@ -1,0 +1,20 @@
+#########################################
+# Datatypes (KEYWORD1)
+#########################################
+DCC_Button	KEYWORD1
+ToggleButton	KEYWORD1
+
+#########################################
+# Methods and Functions (KEYWORD2)
+#########################################
+attach		KEYWORD2
+read		KEYWORD2
+isPressed	KEYWORD2
+isReleased	KEYWORD2
+wasPressed	KEYWORD2
+wasReleased	KEYWORD2
+pressedFor	KEYWORD2
+releasedFor	KEYWORD2
+lastChange	KEYWORD2
+changed		KEYWORD2
+toggleState	KEYWORD2
