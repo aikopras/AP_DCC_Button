@@ -2,7 +2,7 @@
 
 #### Source: ####
 - https://github.com/aikopras/AP_DCC_Button
--https://github.com/JChristensen/JC_Button  
+- https://github.com/JChristensen/JC_Button  
 
 ## Introduction ##
 This library is a modification of Jack Christensen JC_Button, to make the code resemble the other AP_DCC libraries. Whereas the MoBaTools library operates on an Array of buttons, (the object created by) this library will operate on a single button. Also the code of this library is shorter than that of the MoBaTools library.
