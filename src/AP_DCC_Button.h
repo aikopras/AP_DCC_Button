@@ -6,6 +6,8 @@
 //                              https://github.com/JChristensen/JC_Button
 //                              Small modifications are made by Aiko Pras to make the class
 //                              interface resemble the other AP_DCC and RSBus libraries
+//            2021-12-31 V1.2   Reading from the button input pin has been made faster
+//                              digitalRead() is replaced by a register pointer and mask
 //
 // purpose:   Reads the status of (debounced) buttons
 //
@@ -66,16 +68,23 @@ public:
   unsigned long lastChange();
   
 private:
-  uint8_t m_pin;               // arduino pin number connected to button
-  unsigned long m_dbTime;      // debounce time (ms)
-  bool m_puEnable;             // internal pullup resistor enabled
-  bool m_invert;               // if true, interpret logic low as pressed,
-                               // else interpret logic high as pressed
-  bool m_state;                // current button state, true=pressed
-  bool m_lastState;            // previous button state
-  bool m_changed;              // state changed since last read
-  unsigned long m_time;        // time of current state (ms from millis)
-  unsigned long m_lastChange;  // time of last state change (ms)
+  uint8_t m_pin;                    // arduino pin number connected to button
+  unsigned long m_dbTime;           // debounce time (ms)
+  bool m_puEnable;                  // internal pullup resistor enabled
+  bool m_invert;                    // if true, interpret logic low as pressed,
+                                    // else interpret logic high as pressed
+  bool m_state;                     // current button state, true=pressed
+  bool m_lastState;                 // previous button state
+  bool m_changed;                   // state changed since last read
+  unsigned long m_time;             // time of current state (ms from millis)
+  unsigned long m_lastChange;       // time of last state change (ms)
+  
+  // The following was added in december 2021. Instead of using the standard and
+  // slow Arduino digitalRead() function, we use a pointer to the inpu port the
+  // button is connected to, plus a bitmask.
+  uint8_t m_port;                   // PA=1, PB=2, PC=3, PD=4 etc.
+  uint8_t m_bit;                    // Bitmask for reading the input Port
+  volatile uint8_t *m_portRegister; // Example: PINA=$39, PINB=$36, PINC=$34, PIND=$30
 };
 
 

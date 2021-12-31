@@ -12,6 +12,28 @@
 // Copyright: Jack Christensen (2018) and licensed under
 //            GNU GPL v3.0, https://www.gnu.org/licenses/gpl.html
 //
+//
+// Updated: 30 december 2021
+// The routine that reads the value of the button pin should be fast, certainly  if we call
+// that routine at each cycle of the main loop.
+// The traditional Arduino digitalRead() function is relatively slow, certainly when compared
+// to direct port reading, which can (for example) be done using digitalReadfast() or directly:
+// BitVal = !(PIND & (1<<PD3);
+// However, direct port reading has as disadvantage that the port and mask should be hardcoded,
+// and can not be set by the main sketch, thus the user of this library.
+// Therefore we take a slightly slower approach, and use a variable called "portRegister",
+// which points to the right input port, and "bit", which masks the selected input port.
+// To use "portRegister" and "bit", we basically split the Arduino digitalRead() function into:
+// 1) an initialisation part, which maps dccPin to "portInputRegister" and "bit".
+//    This part may be slow
+// 2) The actual reading from the port, which is fast.
+// Comparison between approaches:               Flash  RAM  Time  Delta
+//   value = (PINC & bit);                        6     1   1,09    -
+//   value = (*portRegister & bit);              14     1   1,54   0,45
+//   value = (*portRegister(port) & bit);        28     2   2,37 . 1,28
+//   value = digitalRead(pin);                   88     0   3,84   2,75
+//           Note: Flash & RAM in bytes / Time & Delta in microseconds
+
 //*******************************************************************************************
 #include "AP_DCC_Button.h"
 
@@ -28,7 +50,14 @@ void DCC_Button::attach(uint8_t pin, unsigned long dbTime, bool puEnable, bool i
   // is commonly referred to as the conditional operator. Its meaning is:
   // if m_puEnable is true, `INPUT_PULLUP` is used, otherwise `INPUT`.
   pinMode(m_pin, m_puEnable ? INPUT_PULLUP : INPUT);
-  m_state = digitalRead(m_pin);
+  // Since the Arduino standard digitalRead is too slow, we use a something faster.
+  // Map from the button pin to a pointer for the port, as well as a bitmask
+  m_port = digitalPinToPort(m_pin);
+  m_bit = digitalPinToBitMask(m_pin);
+  m_portRegister = portInputRegister(m_port);
+  m_state = (*m_portRegister & m_bit);
+  // The old code was:
+  // m_state = digitalRead(m_pin);
   if (m_invert) m_state = !m_state;
   m_time = millis();
   m_lastState = m_state;
@@ -42,7 +71,9 @@ void DCC_Button::attach(uint8_t pin, unsigned long dbTime, bool puEnable, bool i
 //*******************************************************************************************
 bool DCC_Button::read() {
   unsigned long ms = millis();
-  bool pinVal = digitalRead(m_pin);
+  bool pinVal = (*m_portRegister & m_bit);
+  // bool pinVal = (PIND & (1<<PD3);      // Direct port access: fast but hardcoded
+  // bool pinVal = digitalRead(m_pin);    // Standard Arduino, flexible but slow
   if (m_invert) pinVal = !pinVal;
   if (ms - m_lastChange < m_dbTime)  {
     m_changed = false;
