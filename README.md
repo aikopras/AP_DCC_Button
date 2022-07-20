@@ -5,7 +5,7 @@
 - https://github.com/JChristensen/JC_Button  
 
 ## Introduction ##
-This library is a modification of Jack Christensen JC_Button, to make the code resemble the other AP_DCC libraries. Whereas the MoBaTools library operates on an Array of buttons, (the object created by) this library will operate on a single button. Also the code of this library is shorter than that of the MoBaTools library.
+This library is a modification of Jack Christensen JC_Button, to make the code resemble the other AP_DCC libraries. Its functionality may be compared to the buttons part of the MoBaTools library. However, whereas the MoBaTools library operates on an Array of buttons, (the object created by) this library will operate on a single button. Also the code of this library is shorter than that of the MoBaTools library.
 
 The Button library is for debouncing and reading momentary contact switches like tactile button switches. "Long presses" of arbitrary length can be detected. Works well in state machine constructs.  Use the read() function to read each button in the main loop, which should execute as fast as possible.
 
